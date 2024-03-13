@@ -1,10 +1,11 @@
 # SAM-HQ Exporter
 
-> **Lightly adapted from [SAM Exporter]()**
+## **Lightly adapted from [SAM Exporter](https://github.com/vietanhdev/samexporter)**
 
-Exporting [Segment Anything in High Quality](https://github.com/facebookresearch/segment-anything) models to different formats.
 
-The [Segment Anything in High Quality repository](https://github.com/facebookresearch/segment-anything) does not have a way to export **encoder** to ONNX format. The authors follow the original SAM's method that only export the decoder. For that reason, [@vietanhdev](https://github.com/vietanhdev) created a tool to export the original SAM model and I lightly modified it to export SAM-HQ.
+Exporting [Segment Anything in High Quality](https://github.com/SysCV/sam-hq) models to different formats.
+
+The [Segment Anything in High Quality repository](https://github.com/SysCV/sam-hq) does not have a way to export **encoder** to ONNX format. The authors follow the original SAM's method that only export the decoder. For that reason, [@vietanhdev](https://github.com/vietanhdev) created a tool to export the original SAM model and I lightly modified it to export SAM-HQ.
 
 
 **Supported models:**
@@ -122,7 +123,10 @@ The original package was developed by [@vietanhdev](https://github.com/vietanhde
 
 [![](https://user-images.githubusercontent.com/18329471/236625792-07f01838-3f69-48b0-a12e-30bad27bd921.gif)](https://youtu.be/5qVJiYNX5Kk)
 
-I myself am using it to develop the [Subvisor](https://github.com/Paulo-Rozatto/subvisor) project. It still is a work in progress. 
+I myself am using it to develop the [Subvisor](https://github.com/Paulo-Rozatto/subvisor) project. It still is a work in progress.
+
+![subvisor](https://github.com/Paulo-Rozatto/sam-hq-exporter/assets/32981433/8cd2a6cf-0da5-4f23-ac28-2d6006105e05)
+
 
 ## License
 
