@@ -1,7 +1,7 @@
 import torch
 import onnx
 
-from segment_anything import sam_model_registry
+from segment_anything_hq import sam_model_registry
 from samexporter.mobile_encoder.setup_mobile_sam import setup_model
 from samexporter.onnx_utils import ImageEncoderOnnxModel
 from onnx.external_data_helper import convert_model_to_external_data
@@ -72,6 +72,13 @@ parser.add_argument(
     ),
 )
 
+# /home/paulo/Desktop/tcc/sam-hq/pretrained_checkpoint/sam_hq_vit_b.pth
+# python samexporter/export_encoder.py --checkpoint /home/paulo/Desktop/tcc/sam-hq/pretrained_checkpoint/sam_hq_vit_b.pth \
+#     --output output_models/encoder2.onnx \
+#     --model-type vit_b \
+#     --quantize-out output_models/encoder2.quant.onnx \
+#     --use-preprocess
+
 
 def run_export(
     model_type: str,
@@ -121,7 +128,7 @@ def run_export(
 
     _ = onnx_model(**dummy_input)
 
-    output_names = ["image_embeddings"]
+    output_names = ["image_embeddings", "interm_embeddings"]
 
     onnx_base = os.path.splitext(os.path.basename(output))[0]
     with warnings.catch_warnings():
@@ -182,6 +189,7 @@ def to_numpy(tensor):
 
 if __name__ == "__main__":
     args = parser.parse_args()
+
     run_export(
         model_type=args.model_type,
         checkpoint=args.checkpoint,

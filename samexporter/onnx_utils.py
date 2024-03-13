@@ -4,7 +4,8 @@ from torch.nn import functional as F
 
 from typing import List
 
-from segment_anything.modeling import Sam
+from segment_anything_hq.modeling import Sam
+from model.image_encoder import ImageEncoderViT
 
 
 class ImageEncoderOnnxModel(nn.Module):
@@ -20,7 +21,7 @@ class ImageEncoderOnnxModel(nn.Module):
 
     def __init__(
         self,
-        model: Sam,
+        # model: Sam,
         use_preprocess: bool,
         pixel_mean: List[float] = None,
         pixel_std: List[float] = None,
@@ -34,14 +35,14 @@ class ImageEncoderOnnxModel(nn.Module):
         self.use_preprocess = use_preprocess
         self.pixel_mean = torch.tensor(pixel_mean, dtype=torch.float)
         self.pixel_std = torch.tensor(pixel_std, dtype=torch.float)
-        self.image_encoder = model.image_encoder
+        self.image_encoder = ImageEncoderViT
 
     @torch.no_grad()
     def forward(self, input_image: torch.Tensor):
         if self.use_preprocess:
             input_image = self.preprocess(input_image)
-        image_embeddings = self.image_encoder(input_image)
-        return image_embeddings
+        image_embeddings, interm_embeddings = self.image_encoder(input_image)
+        return image_embeddings, interm_embeddings
 
     def preprocess(self, x: torch.Tensor) -> torch.Tensor:
         # Normalize colors

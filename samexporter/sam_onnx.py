@@ -59,7 +59,8 @@ class SegmentAnythingONNX:
         """Run encoder"""
         output = self.encoder_session.run(None, encoder_inputs)
         image_embedding = output[0]
-        return image_embedding
+        interm_embeddings = output[1]
+        return image_embedding, interm_embeddings
 
     @staticmethod
     def get_preprocess_shape(oldh: int, oldw: int, long_side_length: int):
@@ -87,7 +88,7 @@ class SegmentAnythingONNX:
         return coords
 
     def run_decoder(
-        self, image_embedding, original_size, transform_matrix, prompt
+        self, image_embedding, interm_embeddings, original_size, transform_matrix, prompt
     ):
         """Run decoder"""
         input_points, input_labels = self.get_input_points(prompt)
@@ -120,6 +121,7 @@ class SegmentAnythingONNX:
 
         decoder_inputs = {
             "image_embeddings": image_embedding,
+            "interm_embeddings": interm_embeddings,
             "point_coords": onnx_coord,
             "point_labels": onnx_label,
             "mask_input": onnx_mask_input,
@@ -182,9 +184,10 @@ class SegmentAnythingONNX:
         encoder_inputs = {
             self.encoder_input_name: cv_image.astype(np.float32),
         }
-        image_embedding = self.run_encoder(encoder_inputs)
+        image_embedding, interm_embeddings = self.run_encoder(encoder_inputs)
         return {
             "image_embedding": image_embedding,
+            "interm_embeddings": interm_embeddings,
             "original_size": original_size,
             "transform_matrix": transform_matrix,
         }
@@ -195,6 +198,7 @@ class SegmentAnythingONNX:
         """
         masks = self.run_decoder(
             embedding["image_embedding"],
+            embedding["interm_embeddings"],
             embedding["original_size"],
             embedding["transform_matrix"],
             prompt,

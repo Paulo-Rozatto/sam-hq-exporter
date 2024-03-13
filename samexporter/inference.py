@@ -53,6 +53,14 @@ argparser.add_argument(
 )
 args = argparser.parse_args()
 
+# python -m samexporter/inference.py \
+# --encoder_model output_models/encoder.quant.onnx \
+# --decoder_model output_models/decoder.quant.onnx \
+# --image images/truck.jpg \
+# --prompt images/truck_prompt.json \
+# --output output_images/truck.png \
+# --show
+
 model = SegmentAnythingONNX(
     args.encoder_model,
     args.decoder_model,

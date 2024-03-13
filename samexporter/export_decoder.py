@@ -8,8 +8,8 @@ import pathlib
 
 import torch
 
-from segment_anything import sam_model_registry
-from segment_anything.utils.onnx import SamOnnxModel
+from segment_anything_hq import sam_model_registry
+from segment_anything_hq.utils.onnx import SamOnnxModel
 
 import argparse
 import warnings
@@ -103,13 +103,20 @@ parser.add_argument(
     ),
 )
 
+# /home/paulo/Desktop/tcc/sam-hq/pretrained_checkpoint/sam_vit_b_maskdecoder.pth
+# python samexporter/export_decoder.py --checkpoint /home/paulo/Desktop/tcc/sam-hq/pretrained_checkpoint/sam_hq_vit_b.pth \
+#     --output output_models/sam_vit_b.decoder.onnx \
+#     --model-type vit_b \
+#     --quantize-out output_models/decoder.quant.onnx \
+#     --return-single-mask
+
 
 def run_export(
     model_type: str,
     checkpoint: str,
     output: str,
     opset: int,
-    return_single_mask: bool,
+    multimask_output: bool,
     gelu_approximate: bool = False,
     use_stability_score: bool = False,
     return_extra_metrics=False,
@@ -119,9 +126,10 @@ def run_export(
 
     onnx_model = SamOnnxModel(
         model=sam,
-        return_single_mask=return_single_mask,
+        multimask_output=multimask_output,
         use_stability_score=use_stability_score,
         return_extra_metrics=return_extra_metrics,
+        hq_token_only=True
     )
 
     if gelu_approximate:
@@ -137,10 +145,13 @@ def run_export(
     embed_dim = sam.prompt_encoder.embed_dim
     embed_size = sam.prompt_encoder.image_embedding_size
     mask_input_size = [4 * x for x in embed_size]
+    encoder_embed_dim_dict = {"vit_b": 768, "vit_l": 1024, "vit_h": 1280}
+    encoder_embed_dim = encoder_embed_dim_dict[model_type]
     dummy_inputs = {
         "image_embeddings": torch.randn(
             1, embed_dim, *embed_size, dtype=torch.float
         ),
+        "interm_embeddings":  torch.randn(4, 1, *embed_size, encoder_embed_dim, dtype=torch.float),
         "point_coords": torch.randint(
             low=0, high=1024, size=(1, 5, 2), dtype=torch.float
         ),
@@ -195,7 +206,7 @@ if __name__ == "__main__":
         checkpoint=args.checkpoint,
         output=args.output,
         opset=args.opset,
-        return_single_mask=args.return_single_mask,
+        multimask_output=(not args.return_single_mask),
         gelu_approximate=args.gelu_approximate,
         use_stability_score=args.use_stability_score,
         return_extra_metrics=args.return_extra_metrics,
