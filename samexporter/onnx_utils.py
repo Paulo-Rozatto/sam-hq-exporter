@@ -21,7 +21,6 @@ class ImageEncoderOnnxModel(nn.Module):
 
     def __init__(
         self,
-        # model: Sam,
         use_preprocess: bool,
         pixel_mean: List[float] = None,
         pixel_std: List[float] = None,
@@ -35,7 +34,7 @@ class ImageEncoderOnnxModel(nn.Module):
         self.use_preprocess = use_preprocess
         self.pixel_mean = torch.tensor(pixel_mean, dtype=torch.float)
         self.pixel_std = torch.tensor(pixel_std, dtype=torch.float)
-        self.image_encoder = ImageEncoderViT
+        self.image_encoder = ImageEncoderViT()
 
     @torch.no_grad()
     def forward(self, input_image: torch.Tensor):

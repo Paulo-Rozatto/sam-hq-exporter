@@ -2,8 +2,7 @@ import torch
 import onnx
 
 from segment_anything_hq import sam_model_registry
-from samexporter.mobile_encoder.setup_mobile_sam import setup_model
-from samexporter.onnx_utils import ImageEncoderOnnxModel
+from onnx_utils import ImageEncoderOnnxModel
 from onnx.external_data_helper import convert_model_to_external_data
 
 import os
@@ -88,16 +87,9 @@ def run_export(
     opset: int,
     gelu_approximate: bool = False,
 ):
-    print("Loading model...")
-    if model_type == "mobile":
-        checkpoint = torch.load(checkpoint, map_location="cpu")
-        sam = setup_model()
-        sam.load_state_dict(checkpoint, strict=True)
-    else:
-        sam = sam_model_registry[model_type](checkpoint=checkpoint)
+    sam = sam_model_registry[model_type](checkpoint=checkpoint)
 
     onnx_model = ImageEncoderOnnxModel(
-        model=sam,
         use_preprocess=use_preprocess,
         pixel_mean=[123.675, 116.28, 103.53],
         pixel_std=[58.395, 57.12, 57.375],
